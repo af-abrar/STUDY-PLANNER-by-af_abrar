@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>STUDY PLANNER</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+  overflow-x:hidden;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+.glow{
+  box-shadow:0 0 20px rgba(255,0,0,0.7);
+}
+
+.glow-soft{
+  box-shadow:0 0 30px rgba(255,0,0,0.3);
+}
+
+textarea::-webkit-scrollbar,
+#goalList::-webkit-scrollbar{
+  width:6px;
+}
+
+textarea::-webkit-scrollbar-thumb,
+#goalList::-webkit-scrollbar-thumb{
+  background:#dc2626;
+  border-radius:20px;
+}
+</style>
+</head>
+
+<body class="bg-black text-white min-h-screen relative">
+
+<!-- BACKGROUND -->
+<div class="absolute inset-0 bg-gradient-to-br from-red-950 via-black to-red-900/20 blur-3xl -z-10"></div>
+
+<!-- NAVBAR -->
+<nav class="relative z-10 flex items-center justify-between px-8 py-5 border-b border-red-900/40 bg-black/50 sticky top-0 backdrop-blur-md">
+<div>
+<h1 class="text-3xl font-black tracking-wider text-red-500">
+STUDY PLANNER
+</h1>
+<p class="text-zinc-500 text-sm">
+BY AF_Abrar
+</p>
+</div>
+
+<div class="flex gap-4 flex-wrap">
+<button class="px-5 py-2 rounded-full bg-red-600 hover:bg-red-500 transition-all glow">
+Dashboard
+</button>
+
+<button class="px-5 py-2 rounded-full border border-red-700 bg-zinc-900 hover:bg-red-700 transition-all">
+AI Assistant
+</button>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="relative z-10 px-8 py-10">
+<div class="rounded-3xl border border-red-800 bg-gradient-to-r from-zinc-900 to-black p-10 glow-soft">
+
+<h2 class="text-5xl font-black leading-tight">
+Your Ultimate Study Dashboard
+</h2>
+
+<p class="mt-5 text-zinc-400 text-lg max-w-3xl">
+Pomodoro Timer, Daily Goals & Smart Task Manager .
+</p>
+
+<div class="mt-8 flex gap-4 flex-wrap">
+
+<button onclick="startTimer()" class="px-8 py-4 rounded-full bg-red-600 hover:bg-red-500 transition-all text-lg font-bold glow">
+Start Pomodoro Focus Session
+</button>
+
+<button onclick="openPlanner()" class="px-8 py-4 rounded-full bg-zinc-900 border border-red-700 hover:bg-zinc-800 transition-all">
+Open Planner
+</button>
+
+</div>
+</div>
+</section>
+
+<!-- MAIN GRID -->
+<main class="relative z-10 grid lg:grid-cols-3 gap-6 px-8 pb-10">
+
+<!-- TIMER -->
+<div class="bg-zinc-950 border border-red-800 rounded-3xl p-6 glow-soft">
+
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold text-red-400">Focus Session</h3>
+<div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+</div>
+
+<div class="text-center py-8">
+<h1 id="timer" class="text-7xl font-black tracking-widest">25:00</h1>
+<p class="mt-3 text-zinc-400">Pomodoro Focus Session</p>
+</div>
+
+<div class="flex justify-center gap-4 flex-wrap mt-6">
+
+<button onclick="startTimer()" class="px-6 py-3 rounded-full bg-red-600 hover:bg-red-500 transition-all glow">
+Start
+</button>
+
+<button onclick="pauseTimer()" class="px-6 py-3 rounded-full bg-zinc-900 border border-red-700 hover:bg-zinc-800 transition-all">
+Pause
+</button>
+
+<button onclick="resetTimer()" class="px-6 py-3 rounded-full bg-zinc-900 border border-red-700 hover:bg-zinc-800 transition-all">
+Reset
+</button>
+
+</div>
+</div>
+
+<!-- DAILY GOALS -->
+<div class="bg-zinc-950 border border-red-800 rounded-3xl p-6 glow-soft">
+
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold text-red-400">Daily Goals</h3>
+<div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+</div>
+
+<div id="goalList" class="space-y-4 max-h-60 overflow-y-auto pr-1"></div>
+
+<div class="space-y-3 mt-6">
+
+<input 
+id="goalInput" 
+type="text" 
+placeholder="Goal Name"
+class="w-full px-4 py-3 rounded-full bg-zinc-900 border border-red-800 outline-none text-white focus:border-red-500 transition-all"
+/>
+
+<input 
+id="goalTime" 
+type="number" 
+placeholder="Timer in minutes"
+class="w-full px-4 py-3 rounded-full bg-zinc-900 border border-red-800 outline-none text-white focus:border-red-500 transition-all"
+/>
+
+<button onclick="addGoal()" class="w-full px-5 py-3 rounded-full bg-red-600 hover:bg-red-500 glow font-bold transition-all">
+Add Goal
+</button>
+
+</div>
+</div>
+
+<!-- CALENDAR -->
+<div class="bg-zinc-950 border border-red-800 rounded-3xl p-6 glow-soft">
+
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold text-red-400">Calendar</h3>
+<div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+</div>
+
+<div id="calendarHeader" class="text-center font-bold text-zinc-400 mb-3 text-sm"></div>
+
+<div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-red-500 mb-2">
+<div>S</div>
+<div>M</div>
+<div>T</div>
+<div>W</div>
+<div>T</div>
+<div>F</div>
+<div>S</div>
+</div>
+
+<div id="calendar" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
+
+</div>
+
+</main>
+
+<!-- TASKS -->
+<section class="relative z-10 px-8 pb-10">
+
+<div class="bg-zinc-950 border border-red-800 rounded-3xl p-6 glow-soft">
+
+<h3 class="text-3xl font-bold text-red-400 mb-6">
+Daily Task Manager
+</h3>
+
+<div id="taskList" class="space-y-4"></div>
+
+<div class="flex gap-3 mt-6">
+
+<input 
+id="taskInput" 
+type="text" 
+placeholder="Add New Task"
+class="flex-1 px-4 py-3 rounded-full bg-zinc-900 border border-red-800 outline-none text-white focus:border-red-500 transition-all"
+/>
+
+<button onclick="addTask()" class="px-6 py-3 rounded-full bg-red-600 hover:bg-red-500 glow font-bold transition-all">
+Add
+</button>
+
+</div>
+</div>
+</section>
+
+<!-- NOTE PLANNER MODAL -->
+<div id="plannerModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-5">
+
+<div class="w-full max-w-3xl bg-zinc-950 border border-red-800 rounded-3xl p-6 glow-soft">
+
+<div class="flex items-center justify-between mb-5">
+
+<h2 class="text-3xl font-bold text-red-400">
+Study Planner Notes
+</h2>
+
+<button onclick="closePlanner()" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-500 transition-all glow">
+Close
+</button>
+
+</div>
+
+<textarea 
+id="plannerNote"
+placeholder="Write your study notes here..."
+class="w-full h-96 bg-zinc-900 border border-red-800 rounded-3xl p-5 outline-none resize-none text-white focus:border-red-500 transition-all"
+></textarea>
+
+<div class="flex justify-end mt-5">
+
+<button onclick="savePlannerNote()" class="px-8 py-3 rounded-full bg-red-600 hover:bg-red-500 transition-all glow font-bold">
+Save Note
+</button>
+
+</div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer class="relative z-10 border-t border-red-900/30 py-6 text-center text-zinc-500">
+<img src="pv 3  - Copy.png" width="100" class="mx-auto mb-3">
+Smart Study Tools • AF_Abrar
+</footer>
+
+<script>
+
+// ===========================
+// MAIN TIMER
+// ===========================
+
+let time = localStorage.getItem("mainTimer")
+? parseInt(localStorage.getItem("mainTimer"))
+: 1500;
+
+let timerInterval;
+
+function updateTimer(){
+
+const minutes = Math.floor(time / 60);
+const seconds = time % 60;
+
+document.getElementById("timer").innerText =
+String(minutes).padStart(2,"0") + ":" +
+String(seconds).padStart(2,"0");
+
+localStorage.setItem("mainTimer", time);
+}
+
+function startTimer(){
+
+clearInterval(timerInterval);
+
+timerInterval = setInterval(()=>{
+
+if(time > 0){
+
+time--;
+updateTimer();
+
+}else{
+
+clearInterval(timerInterval);
+
+alert("Study Session Finished!");
+
+}
+
+},1000);
+
+}
+
+function pauseTimer(){
+clearInterval(timerInterval);
+}
+
+function resetTimer(){
+
+clearInterval(timerInterval);
+
+time = 1500;
+
+updateTimer();
+
+}
+
+updateTimer();
+
+
+// ===========================
+// GOALS SYSTEM
+// ===========================
+
+let goals = JSON.parse(localStorage.getItem("studyGoals")) || [];
+
+function saveGoals(){
+localStorage.setItem("studyGoals", JSON.stringify(goals));
+}
+
+function renderGoals(){
+
+const goalList = document.getElementById("goalList");
+
+goalList.innerHTML = "";
+
+goals.forEach((goalObj,index)=>{
+
+const div = document.createElement("div");
+
+div.className =
+"bg-zinc-900 border border-red-900 rounded-2xl p-4 relative";
+
+div.innerHTML = `
+
+<div class="flex justify-between items-start">
+
+<div>
+<h4 class="font-semibold text-lg text-white">${goalObj.name}</h4>
+<p class="text-zinc-400 text-sm">${goalObj.minutes} Minutes</p>
+</div>
+
+<button onclick="deleteGoal(${index})"
+class="px-3 py-1 text-xs rounded-full bg-red-600 hover:bg-red-500 transition-all">
+Delete
+</button>
+
+</div>
+
+`;
+
+goalList.appendChild(div);
+
+});
+
+}
+
+function addGoal(){
+
+const goalInput = document.getElementById("goalInput");
+const goalTime = document.getElementById("goalTime");
+
+const goal = goalInput.value.trim();
+const minutes = goalTime.value.trim();
+
+if(goal === "" || minutes === ""){
+
+alert("Please enter both goal name and time.");
+
+return;
+
+}
+
+goals.push({
+name:goal,
+minutes:minutes
+});
+
+saveGoals();
+renderGoals();
+
+goalInput.value = "";
+goalTime.value = "";
+
+}
+
+function deleteGoal(index){
+
+goals.splice(index,1);
+
+saveGoals();
+renderGoals();
+
+}
+
+renderGoals();
+
+
+// ===========================
+// TASK MANAGER
+// ===========================
+
+let tasks = JSON.parse(localStorage.getItem("studyTasks")) || [];
+
+function saveTasks(){
+localStorage.setItem("studyTasks", JSON.stringify(tasks));
+}
+
+function renderTasks(){
+
+const taskList = document.getElementById("taskList");
+
+taskList.innerHTML = "";
+
+tasks.forEach((task,index)=>{
+
+const div = document.createElement("div");
+
+div.className =
+"flex items-center justify-between bg-zinc-900 border border-red-900 p-4 rounded-xl";
+
+div.innerHTML = `
+
+<div class="flex items-center gap-3">
+
+<input
+type="checkbox"
+${task.done ? "checked" : ""}
+onchange="toggleTask(${index})"
+class="w-5 h-5 accent-red-600 rounded cursor-pointer"
+/>
+
+<span class="${task.done ? 'line-through text-zinc-500' : 'text-zinc-200'}">
+${task.text}
+</span>
+
+</div>
+
+<button onclick="deleteTask(${index})"
+class="text-zinc-500 hover:text-red-500 text-sm font-bold transition-colors">
+✕
+</button>
+
+`;
+
+taskList.appendChild(div);
+
+});
+
+}
+
+function addTask(){
+
+const taskInput = document.getElementById("taskInput");
+
+const taskText = taskInput.value.trim();
+
+if(taskText === "") return;
+
+tasks.push({
+text:taskText,
+done:false
+});
+
+saveTasks();
+renderTasks();
+
+taskInput.value = "";
+
+}
+
+function toggleTask(index){
+
+tasks[index].done = !tasks[index].done;
+
+saveTasks();
+renderTasks();
+
+}
+
+function deleteTask(index){
+
+tasks.splice(index,1);
+
+saveTasks();
+renderTasks();
+
+}
+
+renderTasks();
+
+
+// ===========================
+// CALENDAR
+// ===========================
+
+function initCalendar(){
+
+const calendar = document.getElementById("calendar");
+
+const header = document.getElementById("calendarHeader");
+
+const date = new Date();
+
+const year = date.getFullYear();
+
+const month = date.getMonth();
+
+const monthNames = [
+"January","February","March","April",
+"May","June","July","August",
+"September","October","November","December"
+];
+
+header.innerText = `${monthNames[month]} ${year}`;
+
+const firstDay = new Date(year, month, 1).getDay();
+
+const totalDays = new Date(year, month + 1, 0).getDate();
+
+const today = date.getDate();
+
+for(let i=0;i<firstDay;i++){
+
+const blank = document.createElement("div");
+
+calendar.appendChild(blank);
+
+}
+
+for(let day=1;day<=totalDays;day++){
+
+const cell = document.createElement("div");
+
+cell.innerText = day;
+
+cell.className =
+"p-2 rounded-lg bg-zinc-900/50 border border-zinc-800 text-center";
+
+if(day === today){
+
+cell.className =
+"p-2 rounded-lg bg-red-600 text-white font-bold glow text-center";
+
+}
+
+calendar.appendChild(cell);
+
+}
+
+}
+
+initCalendar();
+
+
+// ===========================
+// NOTE PLANNER
+// ===========================
+
+function openPlanner(){
+
+document.getElementById("plannerModal").classList.remove("hidden");
+
+document.getElementById("plannerModal").classList.add("flex");
+
+}
+
+function closePlanner(){
+
+document.getElementById("plannerModal").classList.add("hidden");
+
+document.getElementById("plannerModal").classList.remove("flex");
+
+}
+
+function savePlannerNote(){
+
+const note = document.getElementById("plannerNote").value;
+
+localStorage.setItem("studyPlannerNote", note);
+
+alert("Note Saved Successfully!");
+
+}
+
+window.onload = function(){
+
+const savedNote = localStorage.getItem("studyPlannerNote");
+
+if(savedNote){
+
+document.getElementById("plannerNote").value = savedNote;
+
+}
+
+};
+
+</script>
+
+</body>
+</html>
