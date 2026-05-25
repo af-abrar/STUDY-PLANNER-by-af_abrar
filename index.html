@@ -397,11 +397,11 @@ const goalInput = document.getElementById("goalInput");
 const goalTime = document.getElementById("goalTime");
 
 const goal = goalInput.value.trim();
-const minutes = goalTime.value.trim();
+const minutes = parseInt(goalTime.value.trim());
 
-if(goal === "" || minutes === ""){
+if(goal === "" || isNaN(minutes) || minutes <= 0){
 
-alert("Please enter both goal name and time.");
+alert("Please enter a valid goal name and time.");
 
 return;
 
@@ -426,6 +426,76 @@ function startGoalTimer(index){
 
 clearInterval(goals[index].interval);
 
+// FULL SCREEN EFFECT
+const goalCards = document.querySelectorAll("#goalList > div");
+
+goalCards.forEach((card,i)=>{
+
+if(i === index){
+
+card.dataset.oldClass = card.className;
+
+card.className =
+"fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center p-10";
+
+card.innerHTML = `
+
+<div class="w-full max-w-2xl bg-zinc-950 border border-red-800 rounded-3xl p-10 glow-soft text-center">
+
+<h1 class="text-5xl font-black text-red-500 mb-4">
+${goals[index].name}
+</h1>
+
+<p class="text-zinc-400 mb-8 text-lg">
+Focus Mode Active
+</p>
+
+<h2 id="fullscreenTimer${index}" class="text-8xl font-black text-white mb-10">
+00:00
+</h2>
+
+<div class="flex gap-4 justify-center flex-wrap">
+
+<button onclick="pauseGoalTimer(${index})"
+class="px-8 py-4 rounded-full bg-red-600 hover:bg-red-500 transition-all glow text-lg font-bold">
+Pause
+</button>
+
+<button onclick="resetGoalTimer(${index})"
+class="px-8 py-4 rounded-full bg-zinc-900 border border-red-700 hover:bg-zinc-800 transition-all text-lg font-bold">
+Reset
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+});
+
+function updateFullScreenTimer(){
+
+const minutes = Math.floor(goals[index].timeLeft / 60);
+const seconds = goals[index].timeLeft % 60;
+
+const timerElement =
+document.getElementById(`fullscreenTimer${index}`);
+
+if(timerElement){
+
+timerElement.innerText =
+String(minutes).padStart(2,"0") + ":" +
+String(seconds).padStart(2,"0");
+
+}
+
+}
+
+updateFullScreenTimer();
+
 goals[index].interval = setInterval(()=>{
 
 if(goals[index].timeLeft > 0){
@@ -433,7 +503,8 @@ if(goals[index].timeLeft > 0){
 goals[index].timeLeft--;
 
 saveGoals();
-renderGoals();
+
+updateFullScreenTimer();
 
 }else{
 
@@ -442,6 +513,8 @@ clearInterval(goals[index].interval);
 playAlarm();
 
 alert(goals[index].name + " Timer Finished!");
+
+location.reload();
 
 }
 
@@ -453,13 +526,14 @@ function pauseGoalTimer(index){
 
 clearInterval(goals[index].interval);
 
-}
+location.reload();
 
+}
 function resetGoalTimer(index){
 
 clearInterval(goals[index].interval);
 
-goals[index].timeLeft = goals[index].minutes * 60;
+goals[index].timeLeft = parseInt(goals[index].minutes) * 60;
 
 saveGoals();
 renderGoals();
