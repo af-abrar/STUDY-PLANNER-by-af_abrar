@@ -6,7 +6,112 @@
 
 <title>STUDY PLANNER</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com">
+let xp=+localStorage.getItem('xp')||0;
+let streak=+localStorage.getItem('streak')||0;
+let badges=JSON.parse(localStorage.getItem('badges')||'[]');
+
+function refreshPremium(){
+if(document.getElementById('xpCount')) xpCount.innerText=xp;
+if(document.getElementById('levelCount')) levelCount.innerText=Math.floor(xp/100)+1;
+if(document.getElementById('streakCount')) streakCount.innerText=streak;
+if(document.getElementById('badgeCount')) badgeCount.innerText=badges.length;
+}
+function addXP(v){
+xp+=v;
+localStorage.setItem('xp',xp);
+if(xp>=100 && !badges.includes('Level Up')){
+badges.push('Level Up');
+localStorage.setItem('badges',JSON.stringify(badges));
+}
+refreshPremium();
+}
+
+const studyData=JSON.parse(localStorage.getItem('studyData')||'[0,0,0,0,0,0,0]');
+
+window.addEventListener('load',()=>{
+refreshPremium();
+const c=document.getElementById('studyChart');
+if(c){
+new Chart(c,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Study Hours',data:studyData}]}});
+}
+});
+
+let soundObj;
+function playSound(type){
+const urls={
+rain:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+white:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+lofi:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+};
+stopSound();
+soundObj=new Audio(urls[type]);
+soundObj.loop=true;
+soundObj.play();
+}
+function stopSound(){ if(soundObj){soundObj.pause();} }
+
+const originalToggleTask=toggleTask;
+toggleTask=function(index){
+const before=tasks[index].done;
+originalToggleTask(index);
+if(!before) addXP(10);
+};
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+let xp=+localStorage.getItem('xp')||0;
+let streak=+localStorage.getItem('streak')||0;
+let badges=JSON.parse(localStorage.getItem('badges')||'[]');
+
+function refreshPremium(){
+if(document.getElementById('xpCount')) xpCount.innerText=xp;
+if(document.getElementById('levelCount')) levelCount.innerText=Math.floor(xp/100)+1;
+if(document.getElementById('streakCount')) streakCount.innerText=streak;
+if(document.getElementById('badgeCount')) badgeCount.innerText=badges.length;
+}
+function addXP(v){
+xp+=v;
+localStorage.setItem('xp',xp);
+if(xp>=100 && !badges.includes('Level Up')){
+badges.push('Level Up');
+localStorage.setItem('badges',JSON.stringify(badges));
+}
+refreshPremium();
+}
+
+const studyData=JSON.parse(localStorage.getItem('studyData')||'[0,0,0,0,0,0,0]');
+
+window.addEventListener('load',()=>{
+refreshPremium();
+const c=document.getElementById('studyChart');
+if(c){
+new Chart(c,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Study Hours',data:studyData}]}});
+}
+});
+
+let soundObj;
+function playSound(type){
+const urls={
+rain:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+white:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+lofi:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+};
+stopSound();
+soundObj=new Audio(urls[type]);
+soundObj.loop=true;
+soundObj.play();
+}
+function stopSound(){ if(soundObj){soundObj.pause();} }
+
+const originalToggleTask=toggleTask;
+toggleTask=function(index){
+const before=tasks[index].done;
+originalToggleTask(index);
+if(!before) addXP(10);
+};
+
+</script>
 
 <style>
 body{
@@ -84,6 +189,33 @@ Start Pomodoro Focus Session
 Open Planner
 </button>
 
+</div>
+</div>
+</section>
+
+
+<section class="px-8 pb-8">
+<div class="grid lg:grid-cols-4 gap-4 mb-6">
+<div class="bg-zinc-900 border border-red-800 rounded-3xl p-5 text-center"><div>🔥</div><div>Streak</div><div id="streakCount" class="text-3xl font-black text-red-500">0</div></div>
+<div class="bg-zinc-900 border border-red-800 rounded-3xl p-5 text-center"><div>⭐</div><div>XP</div><div id="xpCount" class="text-3xl font-black text-red-500">0</div></div>
+<div class="bg-zinc-900 border border-red-800 rounded-3xl p-5 text-center"><div>🏆</div><div>Level</div><div id="levelCount" class="text-3xl font-black text-red-500">1</div></div>
+<div class="bg-zinc-900 border border-red-800 rounded-3xl p-5 text-center"><div>🎖️</div><div>Badges</div><div id="badgeCount" class="text-3xl font-black text-red-500">0</div></div>
+</div>
+
+<div class="bg-zinc-950 border border-red-800 rounded-3xl p-6">
+<h3 class="text-2xl font-bold text-red-400 mb-4">Study Analytics</h3>
+<canvas id="studyChart"></canvas>
+</div>
+</section>
+
+<section class="px-8 pb-8">
+<div class="bg-zinc-950 border border-red-800 rounded-3xl p-6">
+<h3 class="text-2xl font-bold text-red-400 mb-4">Focus Sounds</h3>
+<div class="flex gap-3 flex-wrap">
+<button onclick="playSound('rain')" class="px-4 py-2 rounded-full bg-red-600">Rain</button>
+<button onclick="playSound('white')" class="px-4 py-2 rounded-full bg-red-600">White Noise</button>
+<button onclick="playSound('lofi')" class="px-4 py-2 rounded-full bg-red-600">Lofi</button>
+<button onclick="stopSound()" class="px-4 py-2 rounded-full bg-zinc-800 border border-red-700">Stop</button>
 </div>
 </div>
 </section>
@@ -191,7 +323,13 @@ Daily Task Manager
 
 <div id="taskList" class="space-y-4"></div>
 
-<div class="flex gap-3 mt-6">
+<div class="flex gap-3 mt-6 flex-wrap">
+<select id="taskCategory" class="px-4 py-3 rounded-full bg-zinc-900 border border-red-800">
+<option>Physics</option><option>Chemistry</option><option>Math</option><option>Revision</option>
+</select>
+<select id="taskPriority" class="px-4 py-3 rounded-full bg-zinc-900 border border-red-800">
+<option>High</option><option>Medium</option><option>Low</option>
+</select>
 
 <input 
 id="taskInput" 
@@ -765,6 +903,58 @@ const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock
 audio.play();
 
 }
+
+
+let xp=+localStorage.getItem('xp')||0;
+let streak=+localStorage.getItem('streak')||0;
+let badges=JSON.parse(localStorage.getItem('badges')||'[]');
+
+function refreshPremium(){
+if(document.getElementById('xpCount')) xpCount.innerText=xp;
+if(document.getElementById('levelCount')) levelCount.innerText=Math.floor(xp/100)+1;
+if(document.getElementById('streakCount')) streakCount.innerText=streak;
+if(document.getElementById('badgeCount')) badgeCount.innerText=badges.length;
+}
+function addXP(v){
+xp+=v;
+localStorage.setItem('xp',xp);
+if(xp>=100 && !badges.includes('Level Up')){
+badges.push('Level Up');
+localStorage.setItem('badges',JSON.stringify(badges));
+}
+refreshPremium();
+}
+
+const studyData=JSON.parse(localStorage.getItem('studyData')||'[0,0,0,0,0,0,0]');
+
+window.addEventListener('load',()=>{
+refreshPremium();
+const c=document.getElementById('studyChart');
+if(c){
+new Chart(c,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Study Hours',data:studyData}]}});
+}
+});
+
+let soundObj;
+function playSound(type){
+const urls={
+rain:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+white:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+lofi:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+};
+stopSound();
+soundObj=new Audio(urls[type]);
+soundObj.loop=true;
+soundObj.play();
+}
+function stopSound(){ if(soundObj){soundObj.pause();} }
+
+const originalToggleTask=toggleTask;
+toggleTask=function(index){
+const before=tasks[index].done;
+originalToggleTask(index);
+if(!before) addXP(10);
+};
 
 </script>
 
